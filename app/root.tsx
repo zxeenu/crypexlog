@@ -12,6 +12,7 @@ import {
 import "@mantine/core/styles.css";
 import { ModalsProvider } from "@mantine/modals";
 import { NavigationProgress, nprogress } from "@mantine/nprogress";
+import "@mantine/nprogress/styles.css";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import {
   Links,
@@ -27,8 +28,9 @@ import { IconMoodSmileDizzy, IconProps } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { DefaultLayout } from "~/components/layout/DefaultLayout/DefaultLayout";
 import { NavBarProvider } from "~/context/navBarContext";
-import "./tailwind.css";
 import { authUser } from "~/lib/auth.server";
+import "./styles/responsiveTable.css";
+import "./tailwind.css";
 
 export const links: LinksFunction = () => [];
 
