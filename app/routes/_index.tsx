@@ -1,6 +1,6 @@
 import { json, type MetaFunction } from '@remix-run/node'
 import { Form, useLoaderData } from '@remix-run/react'
-import { db } from '~/utils/db.server'
+import { db } from '~/lib/db.server'
 
 export const meta: MetaFunction = () => {
   return [{ title: 'New Remix App' }, { name: 'description', content: 'Welcome to Remix!' }]

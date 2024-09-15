@@ -15,6 +15,5 @@ datasource db {
 
 model User {
   id        Int    @id @default(autoincrement())
-  user_name String
-  type      String
+  user_name String @unique
 }
