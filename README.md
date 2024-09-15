@@ -49,3 +49,8 @@ https://stackoverflow.com/questions/63972581/how-to-run-prisma-generate-in-produ
 npx prisma migrate dev
 npm run setup
 ```
+
+## Versions
+
+`npm 10.7.0`
+`node 20.15.0`
