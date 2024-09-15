@@ -33,11 +33,7 @@ export default function BillsPage() {
           />
         </Box>
         <Link to="/bills/new?mode=create">
-          <ActionIcon
-            variant="transparent"
-            color="teal.8"
-            className="hide-on-mobile"
-          >
+          <ActionIcon variant="transparent" className="hide-on-mobile">
             <IconCirclePlus />
           </ActionIcon>
         </Link>
