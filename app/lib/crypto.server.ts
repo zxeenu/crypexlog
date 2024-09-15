@@ -28,7 +28,6 @@ export const simpleEncrypt = async (message: string, key: string) => {
     .setProtectedHeader({ alg: "dir", enc: "A256GCM" })
     .encrypt(secretKey);
 
-  // console.log("Encrypted JWE:", jwe);
   return jwe;
 };
 

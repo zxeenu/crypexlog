@@ -16,4 +16,23 @@ datasource db {
 model User {
   id        Int    @id @default(autoincrement())
   user_name String @unique
+  public_id String @unique
+
+  created_at DateTime  @default(now())
+  deleted_at DateTime?
+
+  userAuth UserAuth[]
+}
+
+model UserAuth {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  password   String
+  blocked_at DateTime?
+  last_login DateTime?
+
+  created_at DateTime  @default(now())
+  deleted_at DateTime?
+
+  user User @relation(fields: [user_id], references: [id])
 }

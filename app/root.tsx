@@ -28,6 +28,7 @@ import { useEffect } from "react";
 import { DefaultLayout } from "~/components/layout/DefaultLayout/DefaultLayout";
 import { NavBarProvider } from "~/context/navBarContext";
 import "./tailwind.css";
+import { authUser } from "~/lib/auth.server";
 
 export const links: LinksFunction = () => [];
 
@@ -54,43 +55,24 @@ type ExternalNavAction = Omit<InternalNavAction, "condition">;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   let loggedIn = false;
-  let user = null;
+  let user: Awaited<ReturnType<typeof authUser>> | null = null;
 
-  const isInternalUser = () => {
-    if (!loggedIn) {
-      return false;
-    }
-
-    return true;
-  };
+  try {
+    user = await authUser({
+      request: request,
+    });
+    loggedIn = true;
+  } catch (e) {}
 
   const allNavLinks: InternalNavLink[] = [
     {
-      label: "Friends",
-      link: "/friends",
-      icon: "lego",
-      iconProps: {
-        stroke: 1.5,
-      },
-      condition: () => true,
-    },
-    {
-      label: "Bills",
-      link: "/bills",
+      label: "Buy Logs",
+      link: "/buy_logs",
       icon: "reciept",
       iconProps: {
         stroke: 1.5,
       },
       condition: () => true,
-    },
-    {
-      label: "Users",
-      link: "/admin/users",
-      icon: "users",
-      iconProps: {
-        stroke: 1.5,
-      },
-      condition: () => isInternalUser(),
     },
   ];
 
@@ -169,6 +151,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
           defaultColorScheme="dark"
           theme={{
             primaryColor: "yellow",
+            components: {
+              button: {
+                defaultProps: {
+                  color: "yellow",
+                },
+              },
+            },
           }}
         >
           <NavBarProvider>

@@ -176,7 +176,6 @@ export function DefaultLayout({ children }: Prop) {
             style={{ display: "flex", flexDirection: "column", height: "100%" }}
           >
             <div className={classes.navbarMain}>{links}</div>
-            <Divider />
             <div className={classes.footer}>{actions}</div>
             <Box>
               <Text size="sm" c="dimmed" ta="center" mt="md">

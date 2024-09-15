@@ -23,7 +23,8 @@ export function useValidationHook<T extends IssueObject>() {
     }
 
     if (hasGivenProperty<IssueObject>(issue, "_errors")) {
-      return issue._errors.join(", ");
+      const uniqueErrors = [...new Set(issue._errors)];
+      return uniqueErrors.join(", ");
     }
 
     return null;
