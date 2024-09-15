@@ -43,7 +43,9 @@ This template comes with [Tailwind CSS](https://tailwindcss.com/) already config
 
 First, build your app for production:
 
+https://stackoverflow.com/questions/63972581/how-to-run-prisma-generate-in-production
+
 ```sh
-npm prisma migrate dev
-npm setup
+npx prisma migrate dev
+npm run setup
 ```

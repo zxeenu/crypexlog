@@ -9,8 +9,7 @@ export const meta: MetaFunction = () => {
 export async function action() {
   await db.user.create({
     data: {
-      'user_name': 'bobman',
-      'type': 'user'
+      'user_name': 'bobman'
     }
   })
 
