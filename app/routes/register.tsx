@@ -175,8 +175,8 @@ export default function RegisterPage() {
           </Grid.Col>
           <Grid.Col>
             <Alert>
-              Please make sure you remember your email and password. We havent
-              implemented a Forget Password yet.
+              Please make sure you remember your username and password. We
+              havent implemented a Forget Password yet.
             </Alert>
           </Grid.Col>
         </Grid>

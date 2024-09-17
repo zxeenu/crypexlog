@@ -120,6 +120,15 @@ export async function action({
       throw new Error("Invalid Params");
     }
 
+    const buyLog = await buyLogModel.data.findOne({
+      id: validatedParams.data.id,
+      created_by: user.id,
+    });
+
+    if (!buyLog) {
+      throw new Error("Restricted Access");
+    }
+
     if (!validatedForm.success) {
       const error = validatedForm.error.format();
       return json({
@@ -140,7 +149,9 @@ export async function action({
       },
     });
 
-    // TODO: recalculate the new balance
+    await buyLogModel.mutation.syncBalanceQty({
+      id: validatedParams.data.id,
+    });
 
     return json({
       type: "success",
@@ -150,6 +161,15 @@ export async function action({
   if (_action === "delete") {
     if (validatedParams.data.id === "new") {
       throw new Error("Invalid Params");
+    }
+
+    const buyLog = await buyLogModel.data.findOne({
+      id: validatedParams.data.id,
+      created_by: user.id,
+    });
+
+    if (!buyLog) {
+      throw new Error("Restricted Access");
     }
 
     await buyLogModel.mutation.softDelete({
@@ -200,6 +220,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (validatedParams.data.id === "new" && buyLog) {
     throw new Error("Data fetched on edit mode");
+  }
+
+  if (validatedParams.data.id !== "new" && !buyLog) {
+    throw new Error("Restricted Access");
   }
 
   const buyItemTypes = [
@@ -296,7 +320,7 @@ export default function BillsIdPage() {
               withAsterisk
               defaultValue={data?.buy_qty ?? undefined}
               name="buy_qty"
-              label="Quantity"
+              label="Buy Quantity"
               error={getIssue("buy_qty")}
               onChange={() => clearIssue("buy_qty")}
               readOnly={isReadOnly}
@@ -322,6 +346,14 @@ export default function BillsIdPage() {
               onChange={() => clearIssue("buy_at")}
               readOnly={isReadOnly}
               placeholder="Will default to now"
+            />
+          </Grid.Col>
+          <Grid.Col span={6}>
+            <NumberInput
+              withAsterisk
+              defaultValue={data?.balance_qty ?? undefined}
+              label="Balance Qty"
+              disabled={true}
             />
           </Grid.Col>
           <Grid.Col span={gridColProps}>

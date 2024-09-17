@@ -57,17 +57,17 @@ model BuyLog {
 }
 
 model SellLog {
-  id        Int      @id @default(autoincrement())
-  sell_qty  Float
-  sell_rate Float
-  sell_at   DateTime @default(now())
-  remarks   String?
+  id         Int      @id @default(autoincrement())
+  sell_qty   Float
+  sell_rate  Float
+  sell_at    DateTime @default(now())
+  remarks    String?
+  buy_log_id Int
 
   created_at DateTime  @default(now())
   deleted_at DateTime?
   created_by Int
 
-  buy_record_id Int
-  buyLog        BuyLog @relation(fields: [buy_record_id], references: [id])
-  createdBy     User   @relation(fields: [created_by], references: [id])
+  buyLog    BuyLog @relation(fields: [buy_log_id], references: [id])
+  createdBy User   @relation(fields: [created_by], references: [id])
 }

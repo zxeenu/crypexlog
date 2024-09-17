@@ -1,9 +1,7 @@
 import {
   ActionIcon,
-  Affix,
   Badge,
   Box,
-  Button,
   Center,
   Divider,
   Group,
@@ -13,17 +11,14 @@ import {
   Table,
   TextInput,
   Title,
-  Transition,
   rem,
 } from "@mantine/core";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
 import {
-  IconCirclePlus,
   IconDots,
   IconDotsVertical,
   IconPencil,
-  IconReceiptBitcoin,
   IconTrash,
   IconZoom,
 } from "@tabler/icons-react";
@@ -31,7 +26,7 @@ import { Fragment } from "react/jsx-runtime";
 import { z } from "zod";
 import Empty from "~/components/Empty/Empty";
 import { authUser } from "~/lib/auth.server";
-import { buyLogModel } from "~/lib/models/buyLog.server";
+import { sellLogModel } from "~/lib/models/sellLog.server";
 import { MenuAction, dbPaginator, formatDate } from "~/lib/utils";
 import { validateSearchParams } from "~/lib/validation";
 
@@ -48,12 +43,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
 
   if (!validatedSearchParams.success) {
-    throw redirect("/buy_logs");
+    throw redirect("/sell_logs");
   }
 
   const pagination = dbPaginator(validatedSearchParams.data);
 
-  const { data, total } = await buyLogModel.data.pages({
+  const { data, total } = await sellLogModel.data.pages({
     pagination: pagination,
     created_by: user.id,
   });
@@ -65,7 +60,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export default function BuyLogs() {
+export default function SellLogs() {
   const { data, total, currentPage } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -74,23 +69,9 @@ export default function BuyLogs() {
   >[] = [
     {
       type: "link",
-      color: "green",
       condition: (item) => {
-        if (item.deleted_at) {
-          return false;
-        }
-        return true;
-      },
-      link: (item) => {
-        return `/buy_logs/sell/${item.id}`;
-      },
-      slug: "sell",
-      label: "Sell",
-      icon: <IconReceiptBitcoin style={{ width: rem(14), height: rem(14) }} />,
-    },
-    {
-      type: "link",
-      condition: (item) => {
+        return false;
+
         if (item.deleted_at) {
           return false;
         }
@@ -107,6 +88,8 @@ export default function BuyLogs() {
       type: "link",
       color: "red",
       condition: (item) => {
+        return false;
+
         if (item.deleted_at) {
           return false;
         }
@@ -124,7 +107,7 @@ export default function BuyLogs() {
   return (
     <Paper p="lg">
       <Group justify="space-between">
-        <Title order={4}>Buy Logs</Title>
+        <Title order={4}>Sell Logs</Title>
         <Box ml={-25} className="hidden">
           <TextInput
             placeholder="Search"
@@ -132,29 +115,23 @@ export default function BuyLogs() {
             rightSection={<IconZoom />}
           />
         </Box>
-        <Link to="/buy_logs/new?mode=create">
-          <ActionIcon variant="transparent" className="hide-on-mobile">
-            <IconCirclePlus />
-          </ActionIcon>
-        </Link>
       </Group>
       <Divider my="md" variant="dashed" />
       {data.length === 0 ? (
         <Fragment>
-          <Empty label="You havent added any buy logs" />
+          <Empty label="You havent sold anything yet" />
         </Fragment>
       ) : (
         <Fragment>
           <Table striped highlightOnHover withRowBorders={false} stickyHeader>
             <Table.Thead>
               <Table.Tr className="hide-on-mobile">
-                <Table.Th>Buy ID</Table.Th>
-                <Table.Th>Item Name</Table.Th>
-                <Table.Th>Buy Rate</Table.Th>
-                <Table.Th>Qty</Table.Th>
-                <Table.Th>Balance Qty</Table.Th>
+                <Table.Th>Sell ID</Table.Th>
+                <Table.Th>Item Details</Table.Th>
+                <Table.Th>Sell Rate</Table.Th>
+                <Table.Th>Sell Qty</Table.Th>
                 <Table.Th>Remarks</Table.Th>
-                <Table.Th>Bought At</Table.Th>
+                <Table.Th>Sold At</Table.Th>
                 <Table.Th>Created At</Table.Th>
                 <Table.Th></Table.Th>
               </Table.Tr>
@@ -216,39 +193,24 @@ export default function BuyLogs() {
                   );
                 };
 
-                let balBadgeColor: "green" | "red" | "blue" | "orange" =
-                  "orange";
-
-                if (item.balance_qty < 0) {
-                  balBadgeColor = "red";
-                }
-
-                if (item.balance_qty === 0) {
-                  balBadgeColor = "green";
-                }
-
-                if (item.balance_qty > 0) {
-                  balBadgeColor = "blue";
-                }
-
                 return (
                   <Fragment key={item.id}>
                     <Table.Tr key={item.id} className="section-border-mobile">
                       <Table.Td data-label="" className="show-on-mobile">
                         <MenuComponent />
                       </Table.Td>
-                      <Table.Td data-label="Buy ID">{item.id}</Table.Td>
-                      <Table.Td data-label="Item Name">
-                        <Badge>{item.buy_item}</Badge>
+                      <Table.Td data-label="Sell ID">{item.id}</Table.Td>
+                      <Table.Td data-label="Item Details">
+                        <Badge mx={4}>Buy Log: #{item.buyLog.id}</Badge>
+                        <Badge>{item.buyLog.buy_item}</Badge>
                       </Table.Td>
-                      <Table.Td data-label="Buy Rate">{item.buy_rate}</Table.Td>
-                      <Table.Td data-label="Qty">{item.buy_qty}</Table.Td>
-                      <Table.Td data-label="Balance Qty">
-                        <Badge color={balBadgeColor}>{item.balance_qty}</Badge>
+                      <Table.Td data-label="Sell Rate">
+                        {item.sell_rate}
                       </Table.Td>
+                      <Table.Td data-label="Sell Qty">{item.sell_qty}</Table.Td>
                       <Table.Td data-label="Remarks">{item.remarks}</Table.Td>
-                      <Table.Td data-label="Bought At">
-                        {formatDate(item.buy_at)}
+                      <Table.Td data-label="Sold At">
+                        {formatDate(item.sell_at)}
                       </Table.Td>
                       <Table.Td data-label="Created At">
                         {formatDate(item.created_at)}
@@ -277,26 +239,6 @@ export default function BuyLogs() {
         </Fragment>
       )}
       <Outlet />
-      <Affix
-        zIndex={199}
-        position={{ bottom: 20, right: 20 }}
-        className="show-on-mobile"
-      >
-        <Transition transition="slide-up" mounted={true}>
-          {(transitionStyles) => (
-            <Link to="/buy_logs/new?mode=create">
-              <Button
-                leftSection={
-                  <IconCirclePlus style={{ width: rem(16), height: rem(16) }} />
-                }
-                style={transitionStyles}
-              >
-                Add Bill
-              </Button>
-            </Link>
-          )}
-        </Transition>
-      </Affix>
     </Paper>
   );
 }

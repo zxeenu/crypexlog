@@ -37,7 +37,6 @@ authenticator.use(
     const k = await env("SESSION_CIPHER_KEY");
     const encryptedPublicId = await simpleEncrypt(userData.public_id, k);
 
-    // let user = await login(email, password);
     const userToken = {
       token: encryptedPublicId,
     } satisfies AccessToken;
@@ -92,7 +91,7 @@ export async function authUser({
 
 export const loginSchema = z
   .object({
-    user_name: z.string().min(5).email(),
+    user_name: z.string().min(5),
     password: z.string().min(8),
   })
   .superRefine(async (arg, ctx) => {

@@ -71,11 +71,32 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {
       label: "Buy Logs",
       link: "/buy_logs",
+      icon: "bitcoin",
+      iconProps: {
+        stroke: 1.5,
+      },
+      condition: () => {
+        if (!user) {
+          return false;
+        }
+
+        return true;
+      },
+    },
+    {
+      label: "Sell Logs",
+      link: "/sell_logs",
       icon: "reciept",
       iconProps: {
         stroke: 1.5,
       },
-      condition: () => true,
+      condition: () => {
+        if (!user) {
+          return false;
+        }
+
+        return true;
+      },
     },
   ];
 

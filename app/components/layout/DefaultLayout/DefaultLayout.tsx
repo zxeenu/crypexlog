@@ -3,7 +3,6 @@ import {
   Box,
   Burger,
   Button,
-  Divider,
   Group,
   Skeleton,
   Text,
@@ -12,6 +11,7 @@ import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { Link, useFetcher } from "@remix-run/react";
 import {
   IconDeviceAnalytics,
+  IconFileBitcoin,
   IconKey,
   IconLego,
   IconLogin,
@@ -48,6 +48,8 @@ function NavBarIconGenerator({
     case "lego":
       return <IconLego {...props} />;
     case "reciept":
+      return <IconFileBitcoin {...props} />;
+    case "bitcoin":
       return <IconReceipt {...props} />;
     case "logout":
       return <IconLogout {...props} />;
