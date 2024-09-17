@@ -10,6 +10,7 @@ import {
   Title,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
 import { ModalsProvider } from "@mantine/modals";
 import { NavigationProgress, nprogress } from "@mantine/nprogress";
 import "@mantine/nprogress/styles.css";

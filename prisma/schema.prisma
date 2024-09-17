@@ -22,6 +22,8 @@ model User {
   deleted_at DateTime?
 
   userAuth UserAuth[]
+  buyLogs  BuyLog[]
+  sellLogs SellLog[]
 }
 
 model UserAuth {
@@ -35,4 +37,37 @@ model UserAuth {
   deleted_at DateTime?
 
   user User @relation(fields: [user_id], references: [id])
+}
+
+model BuyLog {
+  id          Int      @id @default(autoincrement())
+  buy_item    String
+  buy_qty     Float
+  buy_rate    Float
+  buy_at      DateTime @default(now())
+  balance_qty Float
+  remarks     String?
+
+  created_at DateTime  @default(now())
+  deleted_at DateTime?
+  created_by Int
+
+  sellLogs  SellLog[]
+  createdBy User      @relation(fields: [created_by], references: [id])
+}
+
+model SellLog {
+  id        Int      @id @default(autoincrement())
+  sell_qty  Float
+  sell_rate Float
+  sell_at   DateTime @default(now())
+  remarks   String?
+
+  created_at DateTime  @default(now())
+  deleted_at DateTime?
+  created_by Int
+
+  buy_record_id Int
+  buyLog        BuyLog @relation(fields: [buy_record_id], references: [id])
+  createdBy     User   @relation(fields: [created_by], references: [id])
 }

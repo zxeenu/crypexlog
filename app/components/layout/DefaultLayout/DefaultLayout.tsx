@@ -169,7 +169,7 @@ export function DefaultLayout({ children }: Prop) {
           </Link>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar p="md" zIndex={matches ? 200 : 198}>
         {rootData ? (
           <nav
             className={classes.navbar}
