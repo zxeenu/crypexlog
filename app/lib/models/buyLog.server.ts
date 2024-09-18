@@ -82,7 +82,15 @@ export const buyLogModel = {
       });
 
       if (sellLogs.length === 0) {
-        return;
+        // if no sell records, revert to origial qty
+        await db.buyLog.update({
+          where: {
+            id: id,
+          },
+          data: {
+            balance_qty: buyLog.buy_qty,
+          },
+        });
       }
 
       const sellQtyList = sellLogs.map((x) => x.sell_qty);

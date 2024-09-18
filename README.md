@@ -57,9 +57,10 @@ npm run setup
 
 ## TODO
 
-- Sell Log Page, selling functionality + buy log bal resync
-- Sell Update + buy log bal resync
-- dashboard, with profit calculations for days.
-- timeline per buy record, to go through its child sell records.
-- PWA implementation
-- Take CSV of sell and buy logs, all of the data.
+- [] Sell Log Page, selling functionality + buy log bal resync
+- [x] Sell Update + buy log bal resync
+- [] error logging route need to implement
+- [] dashboard, with profit calculations for days.
+- [] timeline per buy record, to go through its child sell records.
+- [] PWA implementation
+- [] Take CSV of sell and buy logs, all of the data.

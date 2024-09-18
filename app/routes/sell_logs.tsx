@@ -70,15 +70,13 @@ export default function SellLogs() {
     {
       type: "link",
       condition: (item) => {
-        return false;
-
         if (item.deleted_at) {
           return false;
         }
         return true;
       },
       link: (item) => {
-        return `/buy_logs/${item.id}?mode=update`;
+        return `/sell_logs/${item.id}?mode=update`;
       },
       slug: "update",
       label: "Update",
@@ -88,15 +86,13 @@ export default function SellLogs() {
       type: "link",
       color: "red",
       condition: (item) => {
-        return false;
-
         if (item.deleted_at) {
           return false;
         }
         return true;
       },
       link: (item) => {
-        return `/buy_logs/${item.id}?mode=delete`;
+        return `/sell_logs/${item.id}?mode=delete`;
       },
       slug: "delete",
       label: "Delete",
@@ -202,13 +198,16 @@ export default function SellLogs() {
                       <Table.Td data-label="Sell ID">{item.id}</Table.Td>
                       <Table.Td data-label="Item Details">
                         <Badge mx={4}>Buy Log: #{item.buyLog.id}</Badge>
-                        <Badge>{item.buyLog.buy_item}</Badge>
+                        <Badge mx={4}>{item.buyLog.buy_item}</Badge>
+                        <Badge mx={4}>Bal Qty: {item.buyLog.balance_qty}</Badge>
                       </Table.Td>
                       <Table.Td data-label="Sell Rate">
                         {item.sell_rate}
                       </Table.Td>
                       <Table.Td data-label="Sell Qty">{item.sell_qty}</Table.Td>
-                      <Table.Td data-label="Remarks">{item.remarks}</Table.Td>
+                      <Table.Td data-label="Remarks">
+                        {item?.remarks ? item.remarks : "N/A"}
+                      </Table.Td>
                       <Table.Td data-label="Sold At">
                         {formatDate(item.sell_at)}
                       </Table.Td>
