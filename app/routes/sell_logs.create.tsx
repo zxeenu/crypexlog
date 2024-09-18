@@ -3,53 +3,41 @@ import {
   Badge,
   Box,
   Button,
-  Card,
   Checkbox,
   ComboboxData,
   Divider,
   Drawer,
   Grid,
   Group,
-  Input,
   NumberFormatter,
   NumberInput,
   ScrollArea,
-  Select,
   Text,
   Textarea,
   TextInput,
   Title,
 } from "@mantine/core";
 import { DateInput, DateValue } from "@mantine/dates";
-import {
-  useDebouncedState,
-  useDebouncedValue,
-  useDisclosure,
-  useFetch,
-} from "@mantine/hooks";
+import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
-  redirect,
   TypedResponse,
 } from "@remix-run/node";
 import {
-  Form,
   json,
   useActionData,
   useFetcher,
   useLoaderData,
   useNavigate,
+  useSubmit,
 } from "@remix-run/react";
 import { Fragment, useEffect, useState } from "react";
 import { z } from "zod";
 import { useValidationHook } from "~/hooks/validationHook";
 import { authUser } from "~/lib/auth.server";
 import { DEBOUNCE_MS_DEFAULT } from "~/lib/constants";
-import { buyLogModel } from "~/lib/models/buyLog.server";
-import { sellLogModel } from "~/lib/models/sellLog.server";
 import { buyRefCode, formatDate } from "~/lib/utils";
-import { validateSearchParams } from "~/lib/validation";
 import { loader as sellLogSearchLoader } from "~/routes/api.sell_log_search";
 import classes from "~/styles/checkboxCard.module.css";
 
@@ -58,7 +46,14 @@ const createSchema = z.object({
   sell_rate: z.coerce.number(),
   sell_at: z.coerce.date(),
   remarks: z.string(),
+  buy_log_ids: z.coerce.number().array(),
 });
+
+type ActionJson = Partial<
+  z.output<typeof createSchema> & {
+    _action: string;
+  }
+>;
 
 type InputErrors = z.inferFormattedError<typeof createSchema>;
 
@@ -73,104 +68,31 @@ type ActionResponse =
 
 export async function action({
   request,
-  params,
 }: ActionFunctionArgs): Promise<TypedResponse<ActionResponse>> {
   const user = await authUser({
     request,
   });
 
-  const validatedParams = z
-    .object({
-      id: z.coerce.number().finite().nonnegative(),
-    })
-    .safeParse(params);
+  const form = (await request.json()) as ActionJson;
 
-  if (!validatedParams.success) {
-    throw new Error("Invalid Params");
+  const { _action, ...formData } = form;
+  const validatedForm = createSchema.safeParse(formData);
+
+  if (!validatedForm.success) {
+    const error = validatedForm.error.format();
+    return json({
+      type: "input-error",
+      issues: error,
+    });
   }
 
-  const validatedSearchParams = validateSearchParams(
-    request,
-    z.object({
-      mode: z.enum(["delete", "update"]),
-    })
-  );
-
-  if (!validatedSearchParams.success) {
-    throw new Error("Invalid Search Params");
-  }
-
-  const sellLog = await sellLogModel.data.findOne({
-    id: validatedParams.data.id,
-    created_by: user.id,
+  return json({
+    type: "success",
   });
-
-  if (!sellLog) {
-    throw new Error("Restricted Access3");
-  }
-
-  const form = await request.formData();
-  const { _action, ...formData } = Object.fromEntries(form);
-
-  if (_action === "update") {
-    const validatedForm = createSchema.safeParse(formData);
-
-    if (!validatedForm.success) {
-      const error = validatedForm.error.format();
-      return json({
-        type: "input-error",
-        issues: error,
-      });
-    }
-
-    const sellLog = await sellLogModel.mutation.update({
-      id: validatedParams.data.id,
-      data: {
-        sell_qty: validatedForm.data.sell_qty,
-        sell_rate: validatedForm.data.sell_rate,
-        sell_at: validatedForm.data.sell_at,
-        remarks: validatedForm.data.remarks,
-      },
-    });
-
-    await buyLogModel.mutation.syncBalanceQty({
-      id: sellLog.buy_log_id,
-    });
-
-    return json({
-      type: "success",
-    });
-  }
-
-  if (_action === "delete") {
-    const validatedForm = createSchema.safeParse(formData);
-
-    if (!validatedForm.success) {
-      const error = validatedForm.error.format();
-      return json({
-        type: "input-error",
-        issues: error,
-      });
-    }
-
-    const sellLog = await sellLogModel.mutation.softDelete({
-      id: validatedParams.data.id,
-    });
-
-    await buyLogModel.mutation.syncBalanceQty({
-      id: sellLog.buy_log_id,
-    });
-
-    return json({
-      type: "success",
-    });
-  }
-
-  throw new Error("Invalid Action");
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
-  const user = await authUser({
+export async function loader({ request }: LoaderFunctionArgs) {
+  await authUser({
     request,
   });
 
@@ -198,6 +120,7 @@ export default function BillsIdPage() {
   const { buyItemTypes } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const { getIssue, clearIssue, setIssues } = useValidationHook<InputErrors>();
+  const submit = useSubmit();
 
   const searchFetcher = useFetcher<typeof sellLogSearchLoader>();
   const [cashedBuyLog, setCachedBuyLogs] = useState<CashedBuyLogs>([]);
@@ -224,6 +147,14 @@ export default function BillsIdPage() {
     remarks: "",
     buy_log_ids: [],
   });
+
+  const submitBatchSell = () => {
+    // @ts-ignore
+    submit(form, {
+      method: "POST",
+      encType: "application/json",
+    });
+  };
 
   const calculateRequirements = () => {
     const selectedBuyLogs = form.buy_log_ids.map((selectedBuyLogId) => {
@@ -526,9 +457,9 @@ export default function BillsIdPage() {
         <Grid>
           <Grid.Col span={12}>
             <Button
-              type="submit"
               fullWidth
               disabled={!calculatedRequirements.isSubmittable}
+              onClick={submitBatchSell}
             >
               Save
             </Button>

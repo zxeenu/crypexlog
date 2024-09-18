@@ -175,7 +175,7 @@ export default function BuyLogs() {
                       <Menu.Target>
                         <ActionIcon variant="transparent">
                           <IconDotsVertical
-                            size={14}
+                            size={20}
                             className="show-on-mobile"
                           />
                           <IconDots size={14} className="hide-on-mobile" />

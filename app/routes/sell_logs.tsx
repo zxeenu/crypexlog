@@ -163,7 +163,7 @@ export default function SellLogs() {
                       <Menu.Target>
                         <ActionIcon variant="transparent">
                           <IconDotsVertical
-                            size={14}
+                            size={20}
                             className="show-on-mobile"
                           />
                           <IconDots size={14} className="hide-on-mobile" />
@@ -217,8 +217,10 @@ export default function SellLogs() {
                         <Badge mx={4} color="indigo">
                           {buyRefCode(item.buy_log_id)}
                         </Badge>
+                        <Badge mx={4} color="indigo">
+                          Buy Bal Qty: {item.buyLog.balance_qty}
+                        </Badge>
                         <Badge mx={4}>{item.buyLog.buy_item}</Badge>
-                        <Badge mx={4}>Bal Qty: {item.buyLog.balance_qty}</Badge>
                       </Table.Td>
                       <Table.Td data-label="Sell Rate">
                         {item.sell_rate}
