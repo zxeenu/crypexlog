@@ -1,7 +1,9 @@
 import {
   ActionIcon,
+  Affix,
   Badge,
   Box,
+  Button,
   Center,
   Divider,
   Group,
@@ -11,11 +13,13 @@ import {
   Table,
   TextInput,
   Title,
+  Transition,
   rem,
 } from "@mantine/core";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
 import {
+  IconCirclePlus,
   IconDots,
   IconDotsVertical,
   IconPencil,
@@ -27,7 +31,13 @@ import { z } from "zod";
 import Empty from "~/components/Empty/Empty";
 import { authUser } from "~/lib/auth.server";
 import { sellLogModel } from "~/lib/models/sellLog.server";
-import { MenuAction, dbPaginator, formatDate } from "~/lib/utils";
+import {
+  MenuAction,
+  buyRefCode,
+  dbPaginator,
+  formatDate,
+  sellRefCode,
+} from "~/lib/utils";
 import { validateSearchParams } from "~/lib/validation";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -111,6 +121,11 @@ export default function SellLogs() {
             rightSection={<IconZoom />}
           />
         </Box>
+        <Link to="/sell_logs/create">
+          <ActionIcon variant="transparent" className="hide-on-mobile">
+            <IconCirclePlus />
+          </ActionIcon>
+        </Link>
       </Group>
       <Divider my="md" variant="dashed" />
       {data.length === 0 ? (
@@ -195,9 +210,13 @@ export default function SellLogs() {
                       <Table.Td data-label="" className="show-on-mobile">
                         <MenuComponent />
                       </Table.Td>
-                      <Table.Td data-label="Sell ID">{item.id}</Table.Td>
+                      <Table.Td data-label="Sell ID">
+                        <Badge color="green">{sellRefCode(item.id)}</Badge>
+                      </Table.Td>
                       <Table.Td data-label="Item Details">
-                        <Badge mx={4}>Buy Log: #{item.buyLog.id}</Badge>
+                        <Badge mx={4} color="indigo">
+                          {buyRefCode(item.buy_log_id)}
+                        </Badge>
                         <Badge mx={4}>{item.buyLog.buy_item}</Badge>
                         <Badge mx={4}>Bal Qty: {item.buyLog.balance_qty}</Badge>
                       </Table.Td>
@@ -238,6 +257,26 @@ export default function SellLogs() {
         </Fragment>
       )}
       <Outlet />
+      <Affix
+        zIndex={199}
+        position={{ bottom: 20, right: 20 }}
+        className="show-on-mobile"
+      >
+        <Transition transition="slide-up" mounted={true}>
+          {(transitionStyles) => (
+            <Link to="/sell_logs/create">
+              <Button
+                leftSection={
+                  <IconCirclePlus style={{ width: rem(16), height: rem(16) }} />
+                }
+                style={transitionStyles}
+              >
+                Add Sell Log
+              </Button>
+            </Link>
+          )}
+        </Transition>
+      </Affix>
     </Paper>
   );
 }

@@ -52,8 +52,9 @@ model BuyLog {
   deleted_at DateTime?
   created_by Int
 
-  sellLogs  SellLog[]
-  createdBy User      @relation(fields: [created_by], references: [id])
+  sellLogs            SellLog[]
+  createdBy           User                 @relation(fields: [created_by], references: [id])
+  batchSellContainers BatchSellContainer[]
 }
 
 model SellLog {
@@ -68,6 +69,25 @@ model SellLog {
   deleted_at DateTime?
   created_by Int
 
-  buyLog    BuyLog @relation(fields: [buy_log_id], references: [id])
-  createdBy User   @relation(fields: [created_by], references: [id])
+  buyLog     BuyLog      @relation(fields: [buy_log_id], references: [id])
+  createdBy  User        @relation(fields: [created_by], references: [id])
+  batchSells BatchSell[]
+}
+
+model BatchSellContainer {
+  id         Int    @id @default(autoincrement())
+  ref_code   String
+  buy_log_id Int
+
+  buyLog     BuyLog      @relation(fields: [buy_log_id], references: [id])
+  batchSells BatchSell[]
+}
+
+model BatchSell {
+  id                      Int @id @default(autoincrement())
+  sell_log_id             Int
+  batch_sell_container_id Int
+
+  sellLog            SellLog            @relation(fields: [sell_log_id], references: [id])
+  batchSellContainer BatchSellContainer @relation(fields: [batch_sell_container_id], references: [id])
 }

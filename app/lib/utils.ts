@@ -77,3 +77,13 @@ export type MenuAction<T> =
       condition: (data: T) => boolean;
       color?: MantineColor;
     };
+
+export const buyRefCode = (id: number) => {
+  const ref = id.toString().padStart(4, "0");
+  return `Buy: #${ref}`;
+};
+
+export const sellRefCode = (id: number) => {
+  const ref = id.toString().padStart(4, "0");
+  return `Sell: #${ref}`;
+};

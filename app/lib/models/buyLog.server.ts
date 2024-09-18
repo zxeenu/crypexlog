@@ -1,9 +1,72 @@
 import { Prisma } from "@prisma/client";
+import { z } from "zod";
 import { db } from "~/lib/db.server";
 import { DbPaginator } from "~/lib/utils";
 
 export const buyLogModel = {
   data: {
+    search: async ({
+      search,
+      include_sold_out,
+      created_by,
+    }: {
+      search?: string;
+      include_sold_out: boolean;
+      created_by: number;
+    }) => {
+      let query: Prisma.BuyLogWhereInput = {
+        deleted_at: null,
+        created_by: created_by,
+      };
+
+      if (!include_sold_out) {
+        query = {
+          ...query,
+          balance_qty: {
+            gt: 0,
+          },
+        };
+      }
+
+      let optionalFilters: Prisma.BuyLogWhereInput["OR"] = [];
+
+      if (search) {
+        optionalFilters.push({
+          remarks: {
+            contains: search,
+          },
+        });
+      }
+
+      if (search) {
+        const searchAsNum = z.coerce.number().safeParse(search);
+        if (searchAsNum.success) {
+          optionalFilters.push({
+            buy_rate: {
+              gte: searchAsNum.data,
+            },
+          });
+        }
+      }
+
+      if (optionalFilters.length > 0) {
+        query = {
+          ...query,
+          AND: {
+            OR: optionalFilters,
+          },
+        };
+      }
+
+      const data = await db.buyLog.findMany({
+        where: query,
+        orderBy: {
+          created_at: "desc",
+        },
+      });
+
+      return data;
+    },
     findOne: async ({ id, created_by }: { id: number; created_by: number }) => {
       return await db.buyLog.findFirst({
         where: {

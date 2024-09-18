@@ -32,7 +32,7 @@ import { z } from "zod";
 import Empty from "~/components/Empty/Empty";
 import { authUser } from "~/lib/auth.server";
 import { buyLogModel } from "~/lib/models/buyLog.server";
-import { MenuAction, dbPaginator, formatDate } from "~/lib/utils";
+import { MenuAction, buyRefCode, dbPaginator, formatDate } from "~/lib/utils";
 import { validateSearchParams } from "~/lib/validation";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -237,7 +237,9 @@ export default function BuyLogs() {
                       <Table.Td data-label="" className="show-on-mobile">
                         <MenuComponent />
                       </Table.Td>
-                      <Table.Td data-label="Buy ID">{item.id}</Table.Td>
+                      <Table.Td data-label="Buy ID">
+                        <Badge color="indigo">{buyRefCode(item.id)}</Badge>
+                      </Table.Td>
                       <Table.Td data-label="Item Name">
                         <Badge>{item.buy_item}</Badge>
                       </Table.Td>
@@ -291,7 +293,7 @@ export default function BuyLogs() {
                 }
                 style={transitionStyles}
               >
-                Add Bill
+                Add Buy Log
               </Button>
             </Link>
           )}
