@@ -54,3 +54,12 @@ npm run setup
 
 `npm 10.7.0`
 `node 20.15.0`
+
+## TODO
+
+- Sell Log Page, selling functionality + buy log bal resync
+- Sell Update + buy log bal resync
+- dashboard, with profit calculations for days.
+- timeline per buy record, to go through its child sell records.
+- PWA implementation
+- Take CSV of sell and buy logs, all of the data.

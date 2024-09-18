@@ -114,6 +114,7 @@ export function DefaultLayout({ children }: Prop) {
             variant="transparent"
             size="md"
             className={classes.link}
+            onClick={close}
           >
             <NavBarIconGenerator iconItem={item} />
             <span>{item.label}</span>
@@ -131,6 +132,7 @@ export function DefaultLayout({ children }: Prop) {
         className={classes.link}
         type="button"
         onClick={() => {
+          close();
           fetcher.submit(null, {
             action: item.action,
             encType: "application/json",

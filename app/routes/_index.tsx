@@ -1,15 +1,25 @@
-import { Divider, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import {
+  Button,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { LoaderFunctionArgs, json, type MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { authUser } from "~/lib/auth.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   let welcomeText = "Welcome to Crypexlog, Brother!";
+  let loggedIn = false;
 
   try {
     const user = await authUser({
       request: request,
     });
+    loggedIn = true;
 
     const regDateTime = new Date(user.created_at);
     const regDay = regDateTime.getDay();
@@ -30,6 +40,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     welcomeText,
+    loggedIn,
   });
 }
 
@@ -41,7 +52,7 @@ export const meta: MetaFunction = () => {
 };
 
 export default function IndexPage() {
-  const { welcomeText } = useLoaderData<typeof loader>();
+  const { welcomeText, loggedIn } = useLoaderData<typeof loader>();
 
   return (
     <Paper p="lg">
@@ -54,6 +65,13 @@ export default function IndexPage() {
           <Text>This is a simple inventory management app.</Text>
         </Group>
       </Stack>
+      {!loggedIn && (
+        <Link to="/login" className="show-on-mobile">
+          <Button size="xs" mt={10}>
+            Login
+          </Button>
+        </Link>
+      )}
     </Paper>
   );
 }
