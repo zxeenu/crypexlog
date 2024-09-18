@@ -8,6 +8,7 @@ import {
   Divider,
   Group,
   Menu,
+  NumberFormatter,
   Pagination,
   Paper,
   Table,
@@ -243,10 +244,29 @@ export default function BuyLogs() {
                       <Table.Td data-label="Item Name">
                         <Badge>{item.buy_item}</Badge>
                       </Table.Td>
-                      <Table.Td data-label="Buy Rate">{item.buy_rate}</Table.Td>
-                      <Table.Td data-label="Qty">{item.buy_qty}</Table.Td>
+                      <Table.Td data-label="Buy Rate">
+                        <NumberFormatter
+                          value={item.buy_rate}
+                          thousandSeparator
+                        />
+                      </Table.Td>
+                      <Table.Td data-label="Qty">
+                        <NumberFormatter
+                          value={item.buy_qty}
+                          thousandSeparator
+                        />
+                      </Table.Td>
                       <Table.Td data-label="Balance Qty">
-                        <Badge color={balBadgeColor}>{item.balance_qty}</Badge>
+                        <Badge color={balBadgeColor}>
+                          {balBadgeColor === "green" ? (
+                            "Sold Out"
+                          ) : (
+                            <NumberFormatter
+                              value={item.balance_qty}
+                              thousandSeparator
+                            />
+                          )}
+                        </Badge>
                       </Table.Td>
                       <Table.Td data-label="Remarks">{item.remarks}</Table.Td>
                       <Table.Td data-label="Bought At">

@@ -8,6 +8,7 @@ import {
   Divider,
   Group,
   Menu,
+  NumberFormatter,
   Pagination,
   Paper,
   Table,
@@ -218,14 +219,26 @@ export default function SellLogs() {
                           {buyRefCode(item.buy_log_id)}
                         </Badge>
                         <Badge mx={4} color="indigo">
-                          Buy Bal Qty: {item.buyLog.balance_qty}
+                          Buy Bal Qty:&nbsp;
+                          <NumberFormatter
+                            value={item.buyLog.balance_qty}
+                            thousandSeparator
+                          />
                         </Badge>
                         <Badge mx={4}>{item.buyLog.buy_item}</Badge>
                       </Table.Td>
                       <Table.Td data-label="Sell Rate">
-                        {item.sell_rate}
+                        <NumberFormatter
+                          value={item.sell_rate}
+                          thousandSeparator
+                        />
                       </Table.Td>
-                      <Table.Td data-label="Sell Qty">{item.sell_qty}</Table.Td>
+                      <Table.Td data-label="Sell Qty">
+                        <NumberFormatter
+                          value={item.sell_qty}
+                          thousandSeparator
+                        />
+                      </Table.Td>
                       <Table.Td data-label="Remarks">
                         {item?.remarks ? item.remarks : "N/A"}
                       </Table.Td>
