@@ -1,5 +1,6 @@
 import { redirect } from "@remix-run/node";
 import bcrypt from "bcryptjs";
+import { CompactEncrypt, importJWK } from "jose";
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import { z } from "zod";
@@ -146,7 +147,16 @@ export const loginSchema = z
       });
       return z.NEVER;
     }
-    const match = bcrypt.compareSync(arg.password, passwordHash);
+
+    const pepper = env("PASSWORD_PEPPER_KEY");
+    const pepperedPassword = await simpleEncrypt(arg.password, pepper);
+    const match = bcrypt.compareSync(pepperedPassword, passwordHash);
+
+    console.log({
+      pepperedPassword,
+      passwordHash,
+      match,
+    });
 
     if (!match) {
       ctx.addIssue({

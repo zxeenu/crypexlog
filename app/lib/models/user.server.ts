@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
+import { simpleEncrypt } from "~/lib/crypto.server";
 import { db } from "~/lib/db.server";
+import { env } from "~/lib/env.server";
 
 export const userModel = {
   mutation: {
@@ -11,10 +13,19 @@ export const userModel = {
       userName: string;
       password: string;
     }) => {
+      const saltRounds = bcrypt.genSaltSync(10);
+
       const publicId = nanoid();
 
-      const saltRounds = bcrypt.genSaltSync(10);
-      const hash = bcrypt.hashSync(password, saltRounds);
+      const pepper = env("PASSWORD_PEPPER_KEY");
+      const pepperedPassword = await simpleEncrypt(password, pepper);
+
+      const hash = bcrypt.hashSync(pepperedPassword, saltRounds);
+
+      console.log({
+        pepperedPassword,
+        hash,
+      });
 
       return await db.user.create({
         data: {
