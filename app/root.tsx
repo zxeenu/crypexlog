@@ -14,7 +14,8 @@ import "@mantine/dates/styles.css";
 import { ModalsProvider } from "@mantine/modals";
 import { NavigationProgress, nprogress } from "@mantine/nprogress";
 import "@mantine/nprogress/styles.css";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { ManifestLink } from "@remix-pwa/sw";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import {
   Links,
   Meta,
@@ -33,7 +34,12 @@ import { authUser } from "~/lib/auth.server";
 import "./styles/responsiveTable.css";
 import "./tailwind.css";
 
-export const links: LinksFunction = () => [];
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Crypexlog" },
+    { name: "description", content: "Welcome to Crypexlog!" },
+  ];
+};
 
 type InternalNavLink = {
   label: string;
@@ -182,6 +188,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        <link rel="manifest" href="/manifest" />
         <Links />
         <ColorSchemeScript defaultColorScheme="dark" />
       </head>
@@ -249,7 +256,7 @@ export function ErrorBoundary() {
           <Group>
             <IconMoodSmileDizzy size={80} stroke={1} />
             <Text>
-              Something unexpected has happaned. Try refreshing if the issue
+              Something unexpected has happened. Try refreshing if the issue
               persists.
             </Text>
           </Group>
