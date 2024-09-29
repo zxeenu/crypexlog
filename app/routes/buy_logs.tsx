@@ -45,6 +45,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     request,
     z.object({
       page: z.coerce.number().int().gt(0).default(1),
+      "filters[buy_log_id]": z.coerce.number().optional(),
     })
   );
 
@@ -57,6 +58,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { data, total } = await buyLogModel.data.pages({
     pagination: pagination,
     created_by: user.id,
+    filters: {
+      buy_log_id: validatedSearchParams.data["filters[buy_log_id]"],
+    },
   });
 
   return json({

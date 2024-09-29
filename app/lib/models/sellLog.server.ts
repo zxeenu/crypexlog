@@ -62,6 +62,7 @@ export const sellLogModel = {
               balance_qty: true,
               id: true,
               buy_item: true,
+              buy_rate: true,
             },
           },
           batchSellAction: true,

@@ -11,6 +11,7 @@ import {
   NumberFormatter,
   Pagination,
   Paper,
+  Stack,
   Table,
   TextInput,
   Title,
@@ -24,6 +25,7 @@ import {
   IconDots,
   IconDotsVertical,
   IconPencil,
+  IconReceiptBitcoin,
   IconTrash,
   IconZoom,
 } from "@tabler/icons-react";
@@ -99,6 +101,22 @@ export default function SellLogs() {
     },
     {
       type: "link",
+      condition: (item) => {
+        if (item.deleted_at) {
+          return false;
+        }
+        return true;
+      },
+      link: (item) => {
+        return `/buy_logs?filters[buy_log_id]=${item.buy_log_id}`;
+      },
+      color: "green",
+      slug: "view-buy-log",
+      label: "View Buy Log",
+      icon: <IconReceiptBitcoin style={{ width: rem(14), height: rem(14) }} />,
+    },
+    {
+      type: "link",
       color: "red",
       condition: (item) => {
         if (item.deleted_at) {
@@ -145,8 +163,10 @@ export default function SellLogs() {
                 <Table.Th>Sell ID</Table.Th>
                 <Table.Th>Item Details</Table.Th>
                 <Table.Th>Batch Code</Table.Th>
+                <Table.Th>Buy Rate</Table.Th>
                 <Table.Th>Sell Rate</Table.Th>
                 <Table.Th>Sell Qty</Table.Th>
+                <Table.Th>Profit</Table.Th>
                 <Table.Th>Remarks</Table.Th>
                 <Table.Th>Sold At</Table.Th>
                 <Table.Th>Created At</Table.Th>
@@ -210,6 +230,11 @@ export default function SellLogs() {
                   );
                 };
 
+                // const diff = item.buyLog.buy_rate - item.sell_rate;
+                // const profit = item.sell_qty * diff;
+                const diff = item.sell_rate - item.buyLog.buy_rate;
+                const profit = item.sell_qty * diff;
+
                 return (
                   <Fragment key={item.id}>
                     <Table.Tr key={item.id} className="section-border-mobile">
@@ -220,17 +245,23 @@ export default function SellLogs() {
                         <Badge color="green">{sellRefCode(item.id)}</Badge>
                       </Table.Td>
                       <Table.Td data-label="Item Details">
-                        <Badge mx={4} color="indigo">
-                          {buyRefCode(item.buy_log_id)}
-                        </Badge>
-                        <Badge mx={4} color="indigo">
-                          Buy Bal Qty:&nbsp;
-                          <NumberFormatter
-                            value={item.buyLog.balance_qty}
-                            thousandSeparator
-                          />
-                        </Badge>
-                        <Badge mx={4}>{item.buyLog.buy_item}</Badge>
+                        <Group
+                          w={{
+                            lg: 250,
+                          }}
+                          justify="center"
+                        >
+                          <Badge mx={4} color="indigo">
+                            {buyRefCode(item.buy_log_id)}
+                          </Badge>
+                          <Badge mx={4} color="indigo">
+                            Buy Bal Qty:&nbsp;
+                            <NumberFormatter
+                              value={item.buyLog.balance_qty}
+                              thousandSeparator
+                            />
+                          </Badge>
+                        </Group>
                       </Table.Td>
                       <Table.Td data-label="Batch Code">
                         {item.batchSellAction?.batch_code ? (
@@ -241,16 +272,30 @@ export default function SellLogs() {
                           "-"
                         )}
                       </Table.Td>
+                      <Table.Td data-label="Buy Rate">
+                        <NumberFormatter
+                          value={item.buyLog.buy_rate}
+                          thousandSeparator
+                        />
+                      </Table.Td>
                       <Table.Td data-label="Sell Rate">
                         <NumberFormatter
                           value={item.sell_rate}
                           thousandSeparator
                         />
                       </Table.Td>
+
                       <Table.Td data-label="Sell Qty">
                         <NumberFormatter
                           value={item.sell_qty}
                           thousandSeparator
+                        />
+                      </Table.Td>
+                      <Table.Td data-label="Profit">
+                        <NumberFormatter
+                          value={profit}
+                          thousandSeparator
+                          decimalScale={2}
                         />
                       </Table.Td>
                       <Table.Td data-label="Remarks">

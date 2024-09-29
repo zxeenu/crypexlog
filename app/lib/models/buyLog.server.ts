@@ -79,14 +79,25 @@ export const buyLogModel = {
     pages: async ({
       pagination,
       created_by,
+      filters,
     }: {
       pagination: DbPaginator;
       created_by: number;
+      filters?: {
+        buy_log_id?: number;
+      };
     }) => {
-      const query: Prisma.BuyLogWhereInput = {
+      let query: Prisma.BuyLogWhereInput = {
         deleted_at: null,
         created_by: created_by,
       };
+
+      if (filters?.buy_log_id) {
+        query = {
+          ...query,
+          id: filters.buy_log_id,
+        };
+      }
 
       let records = await db.buyLog.count({
         where: {
