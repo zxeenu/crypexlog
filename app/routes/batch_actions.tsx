@@ -24,6 +24,7 @@ import {
   IconDots,
   IconDotsVertical,
   IconPencil,
+  IconReceiptBitcoin,
   IconTrash,
   IconZoom,
 } from "@tabler/icons-react";
@@ -31,6 +32,7 @@ import { Fragment } from "react/jsx-runtime";
 import { z } from "zod";
 import Empty from "~/components/Empty/Empty";
 import { authUser } from "~/lib/auth.server";
+import { batchActionModel } from "~/lib/models/batchAction.server";
 import { sellLogModel } from "~/lib/models/sellLog.server";
 import {
   MenuAction,
@@ -50,7 +52,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     request,
     z.object({
       page: z.coerce.number().int().gt(0).default(1),
-      "filters[batch_code]": z.string().optional(),
     })
   );
 
@@ -60,12 +61,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const pagination = dbPaginator(validatedSearchParams.data);
 
-  const { data, total } = await sellLogModel.data.pages({
+  const { data, total } = await batchActionModel.data.pages({
     pagination: pagination,
     created_by: user.id,
-    filters: {
-      batch_code: validatedSearchParams.data["filters[batch_code]"],
-    },
   });
 
   return json({
@@ -84,6 +82,7 @@ export default function SellLogs() {
   >[] = [
     {
       type: "link",
+      color: "green",
       condition: (item) => {
         if (item.deleted_at) {
           return false;
@@ -91,34 +90,18 @@ export default function SellLogs() {
         return true;
       },
       link: (item) => {
-        return `/sell_logs/${item.id}?mode=update`;
+        return `/sell_logs?filters[batch_code]=${item.batch_code}`;
       },
-      slug: "update",
-      label: "Update",
-      icon: <IconPencil style={{ width: rem(14), height: rem(14) }} />,
-    },
-    {
-      type: "link",
-      color: "red",
-      condition: (item) => {
-        if (item.deleted_at) {
-          return false;
-        }
-        return true;
-      },
-      link: (item) => {
-        return `/sell_logs/${item.id}?mode=delete`;
-      },
-      slug: "delete",
-      label: "Delete",
-      icon: <IconTrash style={{ width: rem(14), height: rem(14) }} />,
+      slug: "view-sells",
+      label: "Sell Logs For Batch",
+      icon: <IconReceiptBitcoin style={{ width: rem(14), height: rem(14) }} />,
     },
   ];
 
   return (
     <Paper p="lg">
       <Group justify="space-between">
-        <Title order={4}>Sell Logs</Title>
+        <Title order={4}>Batch Sell Actions</Title>
         <Box ml={-25} className="hidden">
           <TextInput
             placeholder="Search"
@@ -126,24 +109,17 @@ export default function SellLogs() {
             rightSection={<IconZoom />}
           />
         </Box>
-        <Link to="/sell_logs/create">
-          <ActionIcon variant="transparent" className="hide-on-mobile">
-            <IconCirclePlus />
-          </ActionIcon>
-        </Link>
       </Group>
       <Divider my="md" variant="dashed" />
       {data.length === 0 ? (
         <Fragment>
-          <Empty label="You havent sold anything yet" />
+          <Empty label="You havent sold any batches yet" />
         </Fragment>
       ) : (
         <Fragment>
           <Table striped highlightOnHover withRowBorders={false} stickyHeader>
             <Table.Thead>
               <Table.Tr className="hide-on-mobile">
-                <Table.Th>Sell ID</Table.Th>
-                <Table.Th>Item Details</Table.Th>
                 <Table.Th>Batch Code</Table.Th>
                 <Table.Th>Sell Rate</Table.Th>
                 <Table.Th>Sell Qty</Table.Th>
@@ -216,30 +192,10 @@ export default function SellLogs() {
                       <Table.Td data-label="" className="show-on-mobile">
                         <MenuComponent />
                       </Table.Td>
-                      <Table.Td data-label="Sell ID">
-                        <Badge color="green">{sellRefCode(item.id)}</Badge>
-                      </Table.Td>
-                      <Table.Td data-label="Item Details">
-                        <Badge mx={4} color="indigo">
-                          {buyRefCode(item.buy_log_id)}
-                        </Badge>
-                        <Badge mx={4} color="indigo">
-                          Buy Bal Qty:&nbsp;
-                          <NumberFormatter
-                            value={item.buyLog.balance_qty}
-                            thousandSeparator
-                          />
-                        </Badge>
-                        <Badge mx={4}>{item.buyLog.buy_item}</Badge>
-                      </Table.Td>
                       <Table.Td data-label="Batch Code">
-                        {item.batchSellAction?.batch_code ? (
-                          <Badge mx={4}>
-                            {item.batchSellAction?.batch_code}
-                          </Badge>
-                        ) : (
-                          "-"
-                        )}
+                        <Badge mx={4} color="indigo">
+                          {item.batch_code}
+                        </Badge>
                       </Table.Td>
                       <Table.Td data-label="Sell Rate">
                         <NumberFormatter
@@ -286,26 +242,6 @@ export default function SellLogs() {
         </Fragment>
       )}
       <Outlet />
-      <Affix
-        zIndex={199}
-        position={{ bottom: 20, right: 20 }}
-        className="show-on-mobile"
-      >
-        <Transition transition="slide-up" mounted={true}>
-          {(transitionStyles) => (
-            <Link to="/sell_logs/create">
-              <Button
-                leftSection={
-                  <IconCirclePlus style={{ width: rem(16), height: rem(16) }} />
-                }
-                style={transitionStyles}
-              >
-                Add Sell Log
-              </Button>
-            </Link>
-          )}
-        </Transition>
-      </Affix>
     </Paper>
   );
 }

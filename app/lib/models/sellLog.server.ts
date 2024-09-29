@@ -16,14 +16,27 @@ export const sellLogModel = {
     pages: async ({
       pagination,
       created_by,
+      filters,
     }: {
       pagination: DbPaginator;
       created_by: number;
+      filters?: {
+        batch_code?: string;
+      };
     }) => {
-      const query: Prisma.SellLogWhereInput = {
+      let query: Prisma.SellLogWhereInput = {
         deleted_at: null,
         created_by: created_by,
       };
+
+      if (filters?.batch_code) {
+        query = {
+          ...query,
+          batchSellAction: {
+            batch_code: filters.batch_code,
+          },
+        };
+      }
 
       let records = await db.sellLog.count({
         where: {
@@ -51,6 +64,7 @@ export const sellLogModel = {
               buy_item: true,
             },
           },
+          batchSellAction: true,
         },
         ...pagination,
       });

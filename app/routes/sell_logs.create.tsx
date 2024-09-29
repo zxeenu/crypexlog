@@ -137,6 +137,11 @@ export async function action({
         sell_rate: sell_rate,
         batch_code: nanoid(),
         remarks: remarks,
+        createdBy: {
+          connect: {
+            id: user.id,
+          },
+        },
       },
     });
 

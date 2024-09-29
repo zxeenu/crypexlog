@@ -98,6 +98,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
         return true;
       },
     },
+    {
+      label: "Batch Sell Actions",
+      link: "/batch_actions",
+      icon: "reciept",
+      iconProps: {
+        stroke: 1.5,
+      },
+      condition: () => {
+        if (!user) {
+          return false;
+        }
+
+        return true;
+      },
+    },
   ];
 
   const navLinks: ExternalNavLink[] = allNavLinks.filter((x) => x.condition());

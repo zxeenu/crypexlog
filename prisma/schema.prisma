@@ -20,9 +20,10 @@ model User {
   created_at DateTime  @default(now())
   deleted_at DateTime?
 
-  userAuth UserAuth[]
-  buyLogs  BuyLog[]
-  sellLogs SellLog[]
+  userAuth         UserAuth[]
+  buyLogs          BuyLog[]
+  sellLogs         SellLog[]
+  batchSellActions BatchSellAction[]
 }
 
 model UserAuth {
@@ -77,5 +78,10 @@ model BatchSellAction {
   sell_rate  Float
   sell_at    DateTime  @default(now())
   remarks    String?
-  sellLogs   SellLog[]
+  created_at DateTime  @default(now())
+  deleted_at DateTime?
+  created_by Int
+
+  sellLogs  SellLog[]
+  createdBy User      @relation(fields: [created_by], references: [id])
 }
