@@ -42,8 +42,9 @@
     text-transform: uppercase;
   }
 
-  table td:last-child {
-    border-bottom: 0;
+  table td:nth-last-child(2) {
+    border-radius: 5px;
+    border-bottom: 1px solid var(--mantine-primary-color-9);
   }
 
   .hide-on-mobile {

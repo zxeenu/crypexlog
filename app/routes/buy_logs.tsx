@@ -268,7 +268,9 @@ export default function BuyLogs() {
                           )}
                         </Badge>
                       </Table.Td>
-                      <Table.Td data-label="Remarks">{item.remarks}</Table.Td>
+                      <Table.Td data-label="Remarks">
+                        {item?.remarks ? item.remarks : "N/A"}
+                      </Table.Td>
                       <Table.Td data-label="Bought At">
                         {formatDate(item.buy_at)}
                       </Table.Td>

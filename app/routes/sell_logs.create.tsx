@@ -19,6 +19,7 @@ import {
 } from "@mantine/core";
 import { DateInput, DateValue } from "@mantine/dates";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { Prisma } from "@prisma/client";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -32,11 +33,14 @@ import {
   useNavigate,
   useSubmit,
 } from "@remix-run/react";
+import { nanoid } from "nanoid";
 import { Fragment, useEffect, useState } from "react";
 import { z } from "zod";
 import { useValidationHook } from "~/hooks/validationHook";
 import { authUser } from "~/lib/auth.server";
 import { DEBOUNCE_MS_DEFAULT } from "~/lib/constants";
+import { db } from "~/lib/db.server";
+import { buyLogModel } from "~/lib/models/buyLog.server";
 import { buyRefCode, formatDate } from "~/lib/utils";
 import { loader as sellLogSearchLoader } from "~/routes/api.sell_log_search";
 import classes from "~/styles/checkboxCard.module.css";
@@ -83,6 +87,105 @@ export async function action({
     return json({
       type: "input-error",
       issues: error,
+    });
+  }
+
+  const validatedData = validatedForm.data;
+  console.log(validatedData);
+
+  const { sell_qty, sell_at, sell_rate, remarks, buy_log_ids } = validatedData;
+
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    const activeBuyLogs = await tx.buyLog.findMany({
+      where: {
+        id: {
+          in: buy_log_ids,
+        },
+        created_by: user.id,
+        deleted_at: null,
+      },
+      select: {
+        id: true,
+        buy_rate: true,
+        buy_qty: true,
+      },
+    });
+
+    const activeBuyIdCount = activeBuyLogs.length;
+    const batchSellRequestBuyIdCount = buy_log_ids.length;
+
+    if (activeBuyIdCount === 0) {
+      throw new Error("Active buy id count cannot be zero");
+    }
+
+    if (batchSellRequestBuyIdCount === 0) {
+      throw new Error("Batch sell request buy count cannot be zero");
+    }
+
+    if (activeBuyIdCount !== batchSellRequestBuyIdCount) {
+      throw new Error(
+        "User attempting to sell deleted buy item or another users inventory"
+      );
+    }
+
+    // await tx.batchSellContainer.deleteMany();
+
+    const batchSellAction = await tx.batchSellAction.create({
+      data: {
+        sell_at: sell_at,
+        sell_qty: sell_qty,
+        sell_rate: sell_rate,
+        batch_code: nanoid(),
+        remarks: remarks,
+      },
+    });
+
+    if (!batchSellAction) {
+      throw new Error("Batch sell container could not be initialized");
+    }
+
+    let balSellQty = sell_qty;
+    for (const activeBuyLog of activeBuyLogs) {
+      // Determine how much to sell from the current buy log
+      const qtyToSell = Math.min(activeBuyLog.buy_qty, balSellQty);
+
+      await tx.sellLog.create({
+        data: {
+          sell_qty: qtyToSell,
+          sell_rate: sell_rate,
+          createdBy: {
+            connect: {
+              id: user.id,
+            },
+          },
+          sell_at: sell_at,
+          buyLog: {
+            connect: {
+              id: activeBuyLog.id,
+            },
+          },
+          remarks: remarks,
+          batchSellAction: {
+            connect: {
+              id: batchSellAction.id,
+            },
+          },
+        },
+      });
+
+      // Subtract the sold quantity from the remaining balance
+      balSellQty -= qtyToSell;
+
+      // If we have sold the exact amount, break the loop
+      if (balSellQty <= 0) {
+        break;
+      }
+    }
+  });
+
+  for (const buyId of buy_log_ids) {
+    await buyLogModel.mutation.syncBalanceQty({
+      id: buyId,
     });
   }
 
@@ -359,9 +462,13 @@ export default function BillsIdPage() {
         >
           <Grid className="w-full">
             <Grid.Col span={6}>
-              <Text>Balance</Text>
+              <Text>
+                {calculatedRequirements.status === "Enough"
+                  ? "Balance"
+                  : "Negative Balance"}
+              </Text>
               <NumberFormatter
-                value={calculatedRequirements.balanceForView}
+                value={calculatedRequirements.balance}
                 thousandSeparator
               />
             </Grid.Col>
