@@ -50,6 +50,12 @@ npx prisma migrate dev
 npm run setup
 ```
 
+## Migration handling for turso
+
+Need to pipe migrations directly into the turso db.
+
+`turso db shell crypexlog-dev < ./prisma/migrations/20240929213617_/migration.sql`
+
 ## Versions
 
 `npm 10.7.0`
