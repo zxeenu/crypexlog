@@ -1,9 +1,7 @@
 import {
   ActionIcon,
-  Affix,
   Badge,
   Box,
-  Button,
   Center,
   Divider,
   Group,
@@ -14,18 +12,14 @@ import {
   Table,
   TextInput,
   Title,
-  Transition,
   rem,
 } from "@mantine/core";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
 import {
-  IconCirclePlus,
   IconDots,
   IconDotsVertical,
-  IconPencil,
   IconReceiptBitcoin,
-  IconTrash,
   IconZoom,
 } from "@tabler/icons-react";
 import { Fragment } from "react/jsx-runtime";
@@ -33,14 +27,7 @@ import { z } from "zod";
 import Empty from "~/components/Empty/Empty";
 import { authUser } from "~/lib/auth.server";
 import { batchActionModel } from "~/lib/models/batchAction.server";
-import { sellLogModel } from "~/lib/models/sellLog.server";
-import {
-  MenuAction,
-  buyRefCode,
-  dbPaginator,
-  formatDate,
-  sellRefCode,
-} from "~/lib/utils";
+import { MenuAction, dbPaginator, formatDate } from "~/lib/utils";
 import { validateSearchParams } from "~/lib/validation";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -82,7 +69,7 @@ export default function SellLogs() {
   >[] = [
     {
       type: "link",
-      color: "green",
+      color: "blue",
       condition: (item) => {
         if (item.deleted_at) {
           return false;
@@ -93,7 +80,7 @@ export default function SellLogs() {
         return `/sell_logs?filters[batch_code]=${item.batch_code}`;
       },
       slug: "view-sells",
-      label: "Sell Logs For Batch",
+      label: "View Sell Logs For Batch",
       icon: <IconReceiptBitcoin style={{ width: rem(14), height: rem(14) }} />,
     },
   ];

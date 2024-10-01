@@ -18,7 +18,13 @@ import {
   rem,
 } from "@mantine/core";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  Outlet,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import {
   IconCirclePlus,
   IconDots,
@@ -67,12 +73,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     data,
     total,
     currentPage: validatedSearchParams.data.page,
+    searchParams: validatedSearchParams,
   });
 }
 
 export default function BuyLogs() {
-  const { data, total, currentPage } = useLoaderData<typeof loader>();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { data, total, currentPage, searchParams } =
+    useLoaderData<typeof loader>();
+  const [_, setSearchParams] = useSearchParams();
 
   const actions: MenuAction<
     ReturnType<typeof useLoaderData<typeof loader>>["data"][number]
@@ -130,18 +138,29 @@ export default function BuyLogs() {
     <Paper p="lg">
       <Group justify="space-between">
         <Title order={4}>Buy Logs</Title>
-        <Box ml={-25} className="hidden">
-          <TextInput
-            placeholder="Search"
-            radius={20}
-            rightSection={<IconZoom />}
-          />
-        </Box>
-        <Link to="/buy_logs/new?mode=create">
-          <ActionIcon variant="transparent" className="hide-on-mobile">
-            <IconCirclePlus />
-          </ActionIcon>
-        </Link>
+        <Group justify="flex-end">
+          <Form method="GET">
+            <TextInput
+              placeholder="Search by buy id"
+              radius={20}
+              w={{
+                lg: 500,
+              }}
+              name="filters[buy_log_id]"
+              defaultValue={searchParams.data["filters[buy_log_id]"]}
+              rightSection={
+                <ActionIcon variant="transparent">
+                  <IconZoom />
+                </ActionIcon>
+              }
+            />
+          </Form>
+          <Link to="/buy_logs/new?mode=create">
+            <ActionIcon variant="transparent" className="hide-on-mobile">
+              <IconCirclePlus />
+            </ActionIcon>
+          </Link>
+        </Group>
       </Group>
       <Divider my="md" variant="dashed" />
       {data.length === 0 ? (

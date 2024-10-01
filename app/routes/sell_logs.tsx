@@ -19,7 +19,13 @@ import {
   rem,
 } from "@mantine/core";
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  Outlet,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import {
   IconCirclePlus,
   IconDots,
@@ -74,12 +80,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     data,
     total,
     currentPage: validatedSearchParams.data.page,
+    searchParams: validatedSearchParams,
   });
 }
 
 export default function SellLogs() {
-  const { data, total, currentPage } = useLoaderData<typeof loader>();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { data, total, currentPage, searchParams } =
+    useLoaderData<typeof loader>();
+  const [_, setSearchParams] = useSearchParams();
 
   const actions: MenuAction<
     ReturnType<typeof useLoaderData<typeof loader>>["data"][number]
@@ -110,7 +118,7 @@ export default function SellLogs() {
       link: (item) => {
         return `/buy_logs?filters[buy_log_id]=${item.buy_log_id}`;
       },
-      color: "green",
+      color: "blue",
       slug: "view-buy-log",
       label: "View Buy Log",
       icon: <IconReceiptBitcoin style={{ width: rem(14), height: rem(14) }} />,
@@ -137,19 +145,31 @@ export default function SellLogs() {
     <Paper p="lg">
       <Group justify="space-between">
         <Title order={4}>Sell Logs</Title>
-        <Box ml={-25} className="hidden">
-          <TextInput
-            placeholder="Search"
-            radius={20}
-            rightSection={<IconZoom />}
-          />
-        </Box>
-        <Link to="/sell_logs/create">
-          <ActionIcon variant="transparent" className="hide-on-mobile">
-            <IconCirclePlus />
-          </ActionIcon>
-        </Link>
+        <Group justify="flex-end">
+          <Form method="GET">
+            <TextInput
+              placeholder="Search by batch code"
+              radius={20}
+              w={{
+                lg: 500,
+              }}
+              name="filters[batch_code]"
+              defaultValue={searchParams.data["filters[batch_code]"]}
+              rightSection={
+                <ActionIcon variant="transparent">
+                  <IconZoom />
+                </ActionIcon>
+              }
+            />
+          </Form>
+          <Link to="/sell_logs/create">
+            <ActionIcon variant="transparent" className="hide-on-mobile">
+              <IconCirclePlus />
+            </ActionIcon>
+          </Link>
+        </Group>
       </Group>
+
       <Divider my="md" variant="dashed" />
       {data.length === 0 ? (
         <Fragment>
@@ -292,11 +312,7 @@ export default function SellLogs() {
                         />
                       </Table.Td>
                       <Table.Td data-label="Profit">
-                        <NumberFormatter
-                          value={profit}
-                          thousandSeparator
-                          decimalScale={2}
-                        />
+                        <NumberFormatter value={profit} thousandSeparator />
                       </Table.Td>
                       <Table.Td data-label="Remarks">
                         {item?.remarks ? item.remarks : "N/A"}
