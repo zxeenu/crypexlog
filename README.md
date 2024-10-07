@@ -2,6 +2,13 @@
 
 - 📖 [Remix docs](https://remix.run/docs)
 
+## Versions
+
+You need node in the correct version for this setup to work.
+
+`npm 10.7.0`
+`node 20.15.0`
+
 ## Development
 
 Run the dev server:
@@ -16,6 +23,24 @@ First, build your app for production:
 
 ```sh
 npm run build
+```
+
+Then setup your `.env` file
+
+```sh
+cp .env.example .env
+```
+
+Then generate your secrets. Do this two times, for the SESSION_CIPHER_KEY and the SESSION_SECRET
+
+```sh
+npm run key:generate
+```
+
+Then apply your migrations
+
+```sh
+npm run setup
 ```
 
 Then run the app in production mode:
@@ -49,11 +74,6 @@ https://stackoverflow.com/questions/63972581/how-to-run-prisma-generate-in-produ
 npx prisma migrate dev
 npm run setup
 ```
-
-## Versions
-
-`npm 10.7.0`
-`node 20.15.0`
 
 ## TODO
 
