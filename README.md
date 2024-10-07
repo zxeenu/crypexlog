@@ -17,7 +17,7 @@ Run the dev server:
 npm run dev
 ```
 
-## Deployment
+## Deployment for Production
 
 First, build your app for production:
 
