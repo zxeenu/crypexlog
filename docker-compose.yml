@@ -1,0 +1,31 @@
+services:
+  crypexlog-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./sqlite-data:/app/prisma/sqlite-data
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env.production
+    restart: on-failure
+
+  migration_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.migration
+    volumes:
+      - ./sqlite-data:/app/prisma/sqlite-data
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env.production
+    command: ["npm", "run", "setup"]
+    depends_on:
+      - crypexlog-app
+
+volumes:
+  sqlite-data:
