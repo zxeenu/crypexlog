@@ -1,6 +1,25 @@
-:80, :443 {
-  reverse_proxy crypexlog_app:3000
+# :80, :443 {
+#   reverse_proxy crypexlog_app:3000
+# }
+
+#######################
+
+{
+    admin off
 }
+
+:80, :443 {
+    @ip_only {
+        not host
+    }
+    handle @ip_only {
+        reverse_proxy crypexlog_app:3000
+    }
+    handle {
+        respond "Access denied" 403
+    }
+}
+
 
 #######################
 
