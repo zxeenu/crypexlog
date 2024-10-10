@@ -2,10 +2,6 @@
 #   reverse_proxy crypexlog_app:3000
 # }
 
-:80 {
-  redir https://{host}{uri} permanent
-}
-
 :443 {
   reverse_proxy crypexlog_app:3000
 }
