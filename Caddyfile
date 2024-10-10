@@ -7,6 +7,12 @@
 # }
 
 
+# Redirect HTTP (port 80) traffic to HTTPS
+:80 {
+  redir https://{host}{uri} permanent
+}
+
+# Handle HTTPS and reverse proxy to your application
 crypexlog.com, www.crypexlog.com {
   reverse_proxy crypexlog_app:3000
 }
