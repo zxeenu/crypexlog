@@ -9,10 +9,10 @@
 }
 
 :80, :443 {
-    @ip_only {
-        not host
+    @domain_only {
+        host crypexlog.com www.crypexlog.com
     }
-    handle @ip_only {
+    handle @domain_only {
         reverse_proxy crypexlog_app:3000
     }
     handle {
