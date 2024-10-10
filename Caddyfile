@@ -1,6 +1,6 @@
-# :80, :443 {
-#   reverse_proxy crypexlog_app:3000
-# }
+:80, :443 {
+  reverse_proxy crypexlog_app:3000
+}
 
 #######################
 
@@ -24,11 +24,11 @@
 
 #######################
 
-:80, :443 {
-  reverse_proxy crypexlog_app:3000
-}
+# :80, :443 {
+#   reverse_proxy crypexlog_app:3000
+# }
 
-crypexlog.com, www.crypexlog.com {
-  reverse_proxy crypexlog_app:3000
-}
+# crypexlog.com, www.crypexlog.com {
+#   reverse_proxy crypexlog_app:3000
+# }
 
