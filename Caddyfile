@@ -5,18 +5,3 @@
 :443 {
   reverse_proxy crypexlog_app:3000
 }
-
-# # Global options
-# {
-#   auto_https off  # Disable Caddy's automatic HTTPS (optional)
-# }
-
-# # Redirect HTTP to HTTPS
-# :80 {
-#   redir https://{host}{uri} permanent
-# }
-
-# # HTTPS configuration
-# :443 {
-#   reverse_proxy crypexlog_app:3000
-# }
