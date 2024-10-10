@@ -1,8 +1,8 @@
-crypexlog.com {
+https://crypexlog.com {
     reverse_proxy crypexlog_app:3000
 }
 
-www.crypexlog.com {
+http://www.crypexlog.com {
     redir https://crypexlog.com{uri} permanent
 }
 
