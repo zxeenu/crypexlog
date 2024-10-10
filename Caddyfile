@@ -1,20 +1,15 @@
+crypexlog.com {
+    reverse_proxy crypexlog_app:3000
+}
 
-# crypexlog.com {
-#     reverse_proxy crypexlog_app:3000
-# }
-
-# www.crypexlog.com {
-#     redir https://crypexlog.com{uri} permanent
-# }
-
-# :80 {
-#     redir https://{host}{uri} permanent
-# }
+www.crypexlog.com {
+    redir https://crypexlog.com{uri} permanent
+}
 
 # :80 {
 #   reverse_proxy crypexlog_app:3000
 # }
 
-:443 {
-  reverse_proxy crypexlog_app:3000
-}
+# :443 {
+#   reverse_proxy crypexlog_app:3000
+# }
