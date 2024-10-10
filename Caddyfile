@@ -11,10 +11,9 @@
 #     redir https://{host}{uri} permanent
 # }
 
-# # To Publicly expose the ip of the server
-# :80 {
-#   reverse_proxy crypexlog_app:3000
-# }
+:80 {
+  reverse_proxy crypexlog_app:3000
+}
 
 :443 {
   reverse_proxy crypexlog_app:3000
