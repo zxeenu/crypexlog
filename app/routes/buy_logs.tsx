@@ -89,10 +89,12 @@ export default function BuyLogs() {
       type: "link",
       color: "green",
       condition: (item) => {
-        if (item.deleted_at) {
-          return false;
-        }
-        return true;
+        // disabled
+        return false;
+        // if (item.deleted_at) {
+        //   return false;
+        // }
+        // return true;
       },
       link: (item) => {
         return `/buy_logs/sell/${item.id}`;

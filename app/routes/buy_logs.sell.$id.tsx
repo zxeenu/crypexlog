@@ -18,6 +18,7 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
+  redirect,
   TypedResponse,
 } from "@remix-run/node";
 import {
@@ -59,6 +60,8 @@ export async function action({
   request,
   params,
 }: ActionFunctionArgs): Promise<TypedResponse<ActionResponse>> {
+  throw redirect("/");
+
   const user = await authUser({
     request,
   });
@@ -129,6 +132,8 @@ export async function action({
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
+  throw redirect("/");
+
   const user = await authUser({
     request,
   });

@@ -103,40 +103,25 @@ export async function action({
         },
         created_by: user.id,
         deleted_at: null,
+        balance_qty: {
+          gt: 0,
+        },
       },
       select: {
         id: true,
         buy_rate: true,
         buy_qty: true,
+        balance_qty: true,
       },
     });
 
-    const activeBuyIdCount = activeBuyLogs.length;
-    const batchSellRequestBuyIdCount = buy_log_ids.length;
-
-    if (activeBuyIdCount === 0) {
-      throw new Error("Active buy id count cannot be zero");
-    }
-
-    if (batchSellRequestBuyIdCount === 0) {
-      throw new Error("Batch sell request buy count cannot be zero");
-    }
-
-    if (activeBuyIdCount !== batchSellRequestBuyIdCount) {
-      throw new Error(
-        "User attempting to sell deleted buy item or another users inventory"
-      );
-    }
-
-    // await tx.batchSellContainer.deleteMany();
-
     const batchSellAction = await tx.batchSellAction.create({
       data: {
-        sell_at: sell_at,
-        sell_qty: sell_qty,
-        sell_rate: sell_rate,
+        sell_at,
+        sell_qty,
+        sell_rate,
         batch_code: nanoid(),
-        remarks: remarks,
+        remarks,
         createdBy: {
           connect: {
             id: user.id,
@@ -145,31 +130,27 @@ export async function action({
       },
     });
 
-    if (!batchSellAction) {
-      throw new Error("Batch sell container could not be initialized");
-    }
+    let remainingSellQty = sell_qty;
 
-    let balSellQty = sell_qty;
     for (const activeBuyLog of activeBuyLogs) {
-      // Determine how much to sell from the current buy log
-      const qtyToSell = Math.min(activeBuyLog.buy_qty, balSellQty);
+      const qtyToSell = Math.min(activeBuyLog.balance_qty, remainingSellQty);
 
       await tx.sellLog.create({
         data: {
           sell_qty: qtyToSell,
-          sell_rate: sell_rate,
+          sell_rate,
           createdBy: {
             connect: {
               id: user.id,
             },
           },
-          sell_at: sell_at,
+          sell_at,
           buyLog: {
             connect: {
               id: activeBuyLog.id,
             },
           },
-          remarks: remarks,
+          remarks,
           batchSellAction: {
             connect: {
               id: batchSellAction.id,
@@ -178,21 +159,34 @@ export async function action({
         },
       });
 
-      // Subtract the sold quantity from the remaining balance
-      balSellQty -= qtyToSell;
+      await tx.buyLog.update({
+        where: {
+          id: activeBuyLog.id,
+        },
+        data: {
+          balance_qty: {
+            decrement: qtyToSell,
+          },
+        },
+      });
 
-      // If we have sold the exact amount, break the loop
-      if (balSellQty <= 0) {
+      remainingSellQty -= qtyToSell;
+
+      if (remainingSellQty <= 0) {
         break;
       }
     }
+
+    if (remainingSellQty > 0) {
+      throw new Error("Insufficient inventory to complete the sell request");
+    }
   });
 
-  for (const buyId of buy_log_ids) {
-    await buyLogModel.mutation.syncBalanceQty({
-      id: buyId,
-    });
-  }
+  // for (const buyId of buy_log_ids) {
+  //   await buyLogModel.mutation.syncBalanceQty({
+  //     id: buyId,
+  //   });
+  // }
 
   return json({
     type: "success",
@@ -271,7 +265,7 @@ export default function BillsIdPage() {
       if (!buyLog) {
         return 0;
       }
-      return buyLog.buy_qty;
+      return buyLog.balance_qty;
     });
 
     const sumOfSelected = selectedBuyLogs.reduce((acc, curr) => acc + curr, 0);
@@ -490,7 +484,7 @@ export default function BillsIdPage() {
 
       {cashedBuyLog.length > 0 && (
         <Box m={4} mt={6}>
-          <ScrollArea mah={500}>
+          <ScrollArea>
             {cashedBuyLog.map((buyLog) => {
               return (
                 <Fragment key={buyLog.id}>
@@ -499,6 +493,7 @@ export default function BillsIdPage() {
                     className={classes.root}
                     radius="md"
                     checked={form.buy_log_ids.includes(buyLog.id)}
+                    disabled={buyLog.balance_qty <= 0}
                     onClick={(event) => {
                       setForm((form) => {
                         const isSelected = form.buy_log_ids.find(
